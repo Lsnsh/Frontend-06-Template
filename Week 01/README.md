@@ -4,11 +4,11 @@
 
 **必做：**
 
-- TicTacToe-游戏
+- TicTacToe（井字棋）-游戏
   - 人人对战
   - 人机对战
 - 红绿灯-异步编程
-  - 普通
+  - setTimeout
   - promise
   - async/await
   - generator
