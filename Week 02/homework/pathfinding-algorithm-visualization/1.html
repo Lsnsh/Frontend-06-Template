@@ -1,0 +1,60 @@
+<style>
+  #container {
+    width: 701px;
+  }
+
+  .cell {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    line-height: 6px;
+    border-bottom: 1px solid white;
+    border-right: 1px solid white;
+    background-color: grey;
+  }
+  </style>
+
+<div id="container"></div>
+<button onclick="localStorage['map'] = JSON.stringify(map)">save</button>
+
+<!-- 一个地图编辑器 -->
+<script>
+  let map = localStorage['map'] ? JSON.parse(localStorage['map']) : new Array(10000).fill(0);
+  let keyDown = false;
+  let clear = false;
+
+  const container = document.getElementById('container');
+  for (let y = 0; y < 100; y++) {
+    for (let x = 0; x < 100; x++) {
+      const cell = document.createElement('div');
+      if (map[y * 100 + x] === 1) {
+        cell.style.backgroundColor = 'black';
+      }
+      cell.classList.add('cell');
+      cell.addEventListener('mousemove', () => {
+        if (keyDown) {
+          if (clear) {
+            cell.style.backgroundColor = '';
+            map[y * 100 + x] = 0;
+          } else {
+            cell.style.backgroundColor = 'black';
+            map[y * 100 + x] = 1;
+          }
+        }
+      })
+      container.appendChild(cell);
+    }
+  }
+
+  // keydown 只支持鼠标触发，使用触控板时不会触发事件。 https://developer.mozilla.org/zh-CN/docs/Web/API/KeyboardEvent
+  // pointerdown 指针事件，支持鼠标、触控板、触控屏幕等。 https://developer.mozilla.org/zh-CN/docs/Web/API/Pointer_events
+  document.addEventListener('pointerdown', (e) => {
+    keyDown = true;
+    clear = (e.which === 3);
+  })
+  document.addEventListener('pointerup', (e) => {
+    keyDown = false;
+  })
+  // 阻止右键菜单弹出
+  document.addEventListener('contextmenu', e => e.preventDefault())
+</script>
