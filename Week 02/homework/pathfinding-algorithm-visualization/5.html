@@ -17,8 +17,41 @@
 <div id="container"></div>
 <button id="save">save</button>
 
-<!-- 通过异步编程将寻路算法可视化 -->
+<!-- 寻路优化-启发式搜索（A*） -->
 <script>
+  class Sorted {
+    constructor(data, compare) {
+      console.log(this);
+
+      this.data = data.slice();
+      this.compare = compare || ((a, b) => a - b)
+    }
+    take() {
+      if (!this.data.length) {
+        return;
+      }
+      let min = this.data[0];
+      let minIndex = 0;
+      for (let i = 1; i < this.data.length; i++) {
+        if (this.compare(this.data[i], min) < 0) {
+          min = this.data[i];
+          minIndex = i;
+        }
+      }
+
+      this.data[minIndex] = this.data[this.data.length - 1];
+      this.data.pop();
+      return min;
+    }
+    give(v) {
+      this.data.push(v);
+    }
+    get length() {
+      return this.data.length;
+    }
+  }
+
+
   let map = localStorage['map'] ? JSON.parse(localStorage['map']) : new Array(10000).fill(0);
   let keyDown = false;
   let clear = false;
@@ -71,42 +104,70 @@
   }
 
   async function findPath(map, start, end) {
-    let queue = [start];
-    map = Object.create(map);
+    let table = Object.create(map);
+    let queue = new Sorted([start], (a, b) => distance(a) - distance(b));
 
-    async function insert(x, y) {
+    async function insert(x, y, prev) {
       // 走到地图之外
       if (x < 0 || x >= 100 || y < 0 || y >= 100) {
-        return;
+        return false;
       }
       // 碰到墙壁或者走过
-      if (map[y * 100 + x] === 1 || map[y * 100 + x] === 2) {
-        return;
-      }
-
-      await sleep(5);
-      container.children[y * 100 + x].style.backgroundColor = 'lightgreen';
-
-      map[y * 100 + x] = 2;
-      queue.push([x, y]);
-    }
-
-    while (queue.length) {
-      let [x, y] = queue.shift();
-      // console.log(x, y);
-      if (x === end[0] && y === end[1]) {
-        // 高亮终点
-        container.children[y * 100 + x].style.backgroundColor = 'red';
+      if (table[y * 100 + x]) {
+        // container.children[y * 100 + x].style.backgroundColor = 'red';
         return true;
       }
 
-      await insert(x, y - 1); // 上
-      await insert(x, y + 1); // 下
-      await insert(x - 1, y); // 左
-      await insert(x + 1, y); // 右
+      container.children[y * 100 + x].style.backgroundColor = 'lightgreen';
+      table[y * 100 + x] = prev;
+      queue.give([x, y]);
+      return true;
     }
 
-    return false;
+    // 算某点到终点的直线距离
+    function distance(point) {
+      // 勾股定理
+      return (end[0] - point[0]) ** 2 + (end[1] - point[1]) ** 2;
+    }
+
+    while (queue.length) {
+      let [x, y] = queue.take();
+      console.log(x, y);
+      if (x === end[0] && y === end[1]) {
+        let path = [];
+        // 高亮终点
+        container.children[y * 100 + x].style.backgroundColor = 'red';
+
+        while (x !== start[0] || y !== start[1]) {
+          path.push(map[y * 100 + x]);
+          [x, y] = table[y * 100 + x];
+          await sleep(5);
+          container.children[y * 100 + x].style.backgroundColor = 'blue';
+        }
+
+        return path;
+      }
+
+      let isArrivTop = await insert(x, y - 1, [x, y]); // 上
+      let isArrivBottom = await insert(x, y + 1, [x, y]); // 下
+      let isArrivLeft = await insert(x - 1, y, [x, y]); // 左
+      let isArrivRight = await insert(x + 1, y, [x, y]); // 右
+
+      if (!(isArrivLeft && isArrivTop)) {
+        await insert(x - 1, y - 1, [x, y]); // 左上
+      }
+      if (!(isArrivRight && isArrivBottom)) {
+        await insert(x + 1, y + 1, [x, y]); // 右下
+      }
+      if (!(isArrivLeft && isArrivBottom)) {
+        await insert(x - 1, y + 1, [x, y]); // 左下
+      }
+      if (!(isArrivRight && isArrivTop)) {
+        await insert(x + 1, y - 1, [x, y]); // 右上
+      }
+    }
+
+    return null;
   }
 
   initMap();

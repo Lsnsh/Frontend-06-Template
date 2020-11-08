@@ -8,8 +8,8 @@
   1. [实现一个地图编辑器](./homework/pathfinding-algorithm-visualization/1.html)
   2. [广度优先搜索](./homework/pathfinding-algorithm-visualization/2.html)
   3. [通过异步编程将寻路算法可视化](./homework/pathfinding-algorithm-visualization/3.html)
-  4. 启发式搜索（一）
-  5. 启发式搜索（二）
+  4. [绘制寻路路径](./homework/pathfinding-algorithm-visualization/4.html)
+  5. [启发式搜索（A\*）](./homework/pathfinding-algorithm-visualization/5.html)
 
 **选做**
 
