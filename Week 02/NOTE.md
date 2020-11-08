@@ -27,14 +27,24 @@
 1. macOS 触控板无法触发鼠标左键和右键的 keydown 事件？
 
    查阅了 `MDN` 文档，使用触控板时不会触发事件 `keydown` 事件：
-
    https://developer.mozilla.org/zh-CN/docs/Web/API/KeyboardEvent
 
    于是改用 pointerdown 指针事件，支持鼠标、触控板、触控屏幕等：
-
    https://developer.mozilla.org/zh-CN/docs/Web/API/Pointer_events
 
-2. 当逻辑中包含点的对角线移动时，如果围绕某个终点，在地图编辑器中绘制具有弧度，且边宽为一个单元格的「地图」后，执行寻路逻辑绘制的路径会穿越「地图」边界（也就是「地图的墙壁」）
+   ```diff
+   -document.addEventListener("keydown", (e) => {
+   +document.addEventListener("pointerdown", (e) => {
+     keyDown = true;
+     clear = e.which === 3;
+   });
+   -document.addEventListener("keyup", (e) => {
+   +document.addEventListener("pointerup", (e) => {
+     keyDown = false;
+   });
+   ```
+
+1. 当逻辑中包含点的对角线移动时，如果围绕某个终点，在地图编辑器中绘制具有弧度，且边宽为一个单元格的「地图」后，执行寻路逻辑绘制的路径会穿越「地图」边界（也就是「地图的墙壁」）
 
    起点为 `[0,0]`，终点为 `3` 的位置，`1` 的部分表示地图，大概示意图如下（[查看完整地图](./homework/pathfinding-algorithm-visualization/default-map.js)）：
 
@@ -82,7 +92,7 @@
    // ...
    ```
 
-3. Sorted 需要添加 get length() 才能使用 queue.length 访问到 length
+1. Sorted 需要添加 get length() 才能使用 queue.length 访问到 length
 
    ```diff
    class Sorted {
