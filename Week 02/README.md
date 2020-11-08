@@ -59,6 +59,8 @@
    0 0 0 0 0 0 0 0 0 0
    ```
 
+   ![](./homework/pathfinding-algorithm-visualization/images/pathfinding-on-default-map-1.png)
+
    原因在于对角线移动时，没有考虑墙的存在导致的：
 
    ```js
