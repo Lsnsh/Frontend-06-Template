@@ -1,0 +1,27 @@
+<script>
+  let regexp = /([0-9\.]+)|([ \t]+)|([\r\n])|(\*)|(\/)|(\+)|(\-)/g;
+  let dictionary = ['Number', 'WhiteSpace', 'LineTerminator', '*', '/', '+', '-'];
+
+  function tokenize(source) {
+    let result = null;
+    while (true) {
+      // 从左到右使用正则匹配
+      result = regexp.exec(source);
+
+      if (!result) {
+        break;
+      }
+
+      for (let i = 1; i < result.length; i++) {
+        // 匹配到之后输出对应的类型
+        if (result[i]) {
+          console.log(dictionary[i - 1]);
+        }
+      }
+
+      console.log(result);
+    }
+  }
+
+  tokenize('1024 + 10 * 25');
+</script>

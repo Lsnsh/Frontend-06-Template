@@ -1,0 +1,49 @@
+<script>
+  let regexp = /([0-9\.]+)|([ \t]+)|([\r\n])|(\*)|(\/)|(\+)|(\-)/g;
+  let dictionary = ['Number', 'WhiteSpace', 'LineTerminator', '*', '/', '+', '-'];
+
+  function* tokenize(source) {
+    let result = null;
+    let lastIndex = 0;
+    while (true) {
+      // 从左到右使用正则匹配
+      result = regexp.exec(source);
+
+      if (!result) {
+        break;
+      }
+      if (regexp.lastIndex - lastIndex > result[0].length) {
+        break;
+      }
+      lastIndex = regexp.lastIndex;
+
+      let token = {
+        type: null,
+        value: null
+      }
+
+      for (let i = 1; i < result.length; i++) {
+        // 匹配到之后输出对应的类型
+        if (result[i]) {
+          token.type = dictionary[i - 1];
+          token.value = result[0];
+          console.log(token.type);
+
+          // 第一次 yield 时就会返回 iterator
+          yield token;
+          // 找到之后，终止 for 循环
+          break;
+        }
+      }
+    }
+    // 执行完毕之后，返回 EOF（End Of File）
+    yield {
+      type: 'EOF'
+    }
+  }
+
+  // 遍历 generator 函数返回的 iterator
+  for (let token of tokenize('1024 + 10 * 25')) {
+    console.log(token);
+  }
+</script>
