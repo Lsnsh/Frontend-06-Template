@@ -1,0 +1,58 @@
+<script>
+  function Wildcard(source, pattern) {
+    // 找通配符（*）的个数
+    let starCount = 0;
+    for (let i = 0; i < pattern.length; i++) {
+      if (pattern[i] === '*') {
+        starCount++;
+      }
+    }
+
+    // 处理没有通配符的情况
+    if (starCount === 0) {
+      for (let j = 0; j < pattern.length; j++) {
+        if (pattern[j] !== source[j] && pattern[j] !== '?') {
+          return false;
+        }
+      }
+      return;
+    }
+
+    // 开始处理第一个通配符之前的字符串
+    let k, lastIndex = 0;
+    for (k = 0; pattern[k] !== '*'; k++) {
+      if (pattern[k] !== source[k] && pattern[k] !== '?') {
+        return false;
+      }
+    }
+
+    lastIndex = k;
+
+    // 处理最后一个通配符之前的通配符
+    for (let l = 0; l < starCount - 1; l++) {
+      let subPattern = '';
+      k++;
+
+      while (pattern[k] !== '*') {
+        subPattern += pattern[i];
+        k++;
+      }
+
+      let regexp = new RegExp(subPattern.replace(/\?/g, '[\\s\\S]'), 'g');
+      regexp.lastIndex = lastIndex;
+
+      console.log(regexp.exec(source));
+
+      lastIndex = regexp.lastIndex;
+    }
+
+    // 处理问号
+    for (let m = 0; m <= source.length - lastIndex && pattern[pattern.length - m] !== '*'; m++) {
+      if (pattern[pattern.length - m] !== source[source.length - m] && pattern[pattern.length - m] !== '?') {
+        return false;
+      }
+    }
+
+    return true;
+  }
+</script>
