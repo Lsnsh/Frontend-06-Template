@@ -5,9 +5,13 @@
 **必做：**
 
 - 课堂练习
-  2. [字符串分析算法 | 字典树](./homework/string-analysis-algorithm/1.html)
-  3. [字符串分析算法 | KMP 字符串模式匹配算法](./homework/string-analysis-algorithm/2.js)
-  4. [字符串分析算法 | Wildcard](./homework/string-analysis-algorithm/3.html)
+  1. [字符串分析算法 | 字典树](./homework/string-analysis-algorithm/1.html)
+  2. [字符串分析算法 | KMP 字符串模式匹配算法](./homework/string-analysis-algorithm/2.js)
+  3. [字符串分析算法 | Wildcard](./homework/string-analysis-algorithm/3.html)
+
+**选做：**
+
+- 尝试使用带问号（?）的 `KMP 算法`，替代 `Wildcard` 中正则部分的代码
 
 ## 本周总结
 
@@ -26,4 +30,17 @@
 - LL LR
   - 字符串多层级结构分析
 
-然后学习了其中的三种：字典树、KMP 和 Wildcard
+然后学习并实现了其中的三种（字典树、KMP 和 Wildcard），具体实现思路：
+
+- 字典树
+  - 生成字典树时（新的字符串插入），逐层创建并深入子树，然后在最后一级子树中更新当前字符串出现的次数
+  - 递归访问字典树，找到并不断记录当前出现次数最多的字符串和次数，直到访问完所有树的节点
+- KMP
+  - 基于要匹配的部分，创建跳转表格
+  - 在源字符串中匹配，当某一步不满足条件时，尝试从跳转表格中找记录过的位置再次开始匹配，而不是从头开始
+- Wildcard
+  - 最后一个通配符（\*）之前通配符尽可能少的匹配，最后一个通配符尽可能多的匹配，问号能匹配所有内容
+  - 先找通配符（\*）的个数、处理没有通配符的情况
+  - 开始处理第一个通配符之前的字符串匹配
+  - 处理最后一个通配符之前的通配符的匹配
+  - 处理问号的匹配

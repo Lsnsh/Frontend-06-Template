@@ -34,14 +34,16 @@
       k++;
 
       while (pattern[k] !== '*') {
-        subPattern += pattern[i];
+        subPattern += pattern[k];
         k++;
       }
 
       let regexp = new RegExp(subPattern.replace(/\?/g, '[\\s\\S]'), 'g');
       regexp.lastIndex = lastIndex;
 
-      console.log(regexp.exec(source));
+      if (!regexp.exec(source)) {
+        return false;
+      }
 
       lastIndex = regexp.lastIndex;
     }
@@ -55,4 +57,8 @@
 
     return true;
   }
+
+  // console.log(Wildcard('abcabcabxaac', 'a*b*bx*c'));
+  console.log(Wildcard('abcabcabxaac', 'a*b?*b?x*c'));
+
 </script>
