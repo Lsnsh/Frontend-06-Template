@@ -16,4 +16,6 @@
 
 ## 本周总结
 
-本周学习了 `Proxy 与双向绑定` 和 `使用 Range 实现 DOM 精确操作`
+本周学习了如何使用 `Proxy` 对象，通过模仿 `reactive` 的实现原理，然后使用实现的 `reactivity 响应式对象` 写了一个[调色盘](./homework/proxy/6.html)
+
+最后还学习使用 `Range API` 精确操作 `DOM`，实现了在[正常文档流中拖拽 DOM](./homework/proxy/8.html)
