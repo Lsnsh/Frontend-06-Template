@@ -1,0 +1,62 @@
+<script>
+  let callbacks = new Map();
+  let reactivities = new Map();
+
+  let usedReactivities = [];
+
+  let o1 = {
+    a: { b: 3 },
+    b: 2
+  }
+
+  let p1 = reactive(o1);
+
+  effect(() => {
+    console.log(p1.a.b);
+  })
+
+  function effect(callback) {
+    // callbacks.push(callback);
+    callback();
+    console.log(usedReactivities);
+
+    for (let reactivity of usedReactivities) {
+      if (!callbacks.has(reactivity[0])) {
+        callbacks.set(reactivity[0], new Map());
+      }
+      if (!callbacks.get(reactivity[0]).has(reactivity[1])) {
+        callbacks.get(reactivity[0]).set(reactivity[1], []);
+      }
+      callbacks.get(reactivity[0]).get(reactivity[1]).push(callback);
+    }
+  }
+
+  function reactive(obj) {
+    if (reactivities.has(obj)) {
+      return reactivities.get(obj);
+    }
+
+    let proxy = new Proxy(obj, {
+      set(obj, prop, value, proxy) {
+        obj[prop] = value;
+        if (callbacks.get(obj) && callbacks.get(obj).get(prop)) {
+          for (let callback of callbacks.get(obj).get(prop)) {
+            callback();
+          }
+        }
+        return obj[prop];
+      },
+      get(obj, prop, proxy) {
+        usedReactivities.push([obj, prop]);
+        if (typeof obj[prop] === 'object') {
+          return reactive(obj[prop]);
+        }
+        return obj[prop];
+      }
+    })
+
+    // 缓存 reactive
+    reactivities.set(obj, proxy);
+    return proxy;
+  }
+</script>
