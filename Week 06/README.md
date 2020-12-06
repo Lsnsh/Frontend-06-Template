@@ -5,11 +5,52 @@
 **必做：**
 
 - 课堂练习
-  1. 编写带括号的四则运算产生式
-  2. 尽可能寻找你知道的计算机语言，尝试把它们分类
-  3. 写一段 JS 的函数，把一个 string 它代表的字节给它转换出来，用 UTF8 对 string 进行遍码。
-  4. 用 JavaScript 去设计狗咬人的代码
-  5. 找出 JavaScript 标准里面所有具有特殊行为的对象
+  1. [编写带括号的四则运算产生式](#1-编写带括号的四则运算产生式)
+  2. [尽可能寻找你知道的计算机语言，尝试把它们分类](#2-尽可能寻找你知道的计算机语言尝试把它们分类)
+  3. [写一段 JS 的函数，把一个 string 它代表的字节给它转换出来，用 UTF8 对 string 进行遍码](./homework/3.html)
+  4. [用 JavaScript 去设计狗咬人的代码](./homework/4.html)
+  5. [找出 JavaScript 标准里面所有具有特殊行为的对象](#5-找出-javascript-标准里面所有具有特殊行为的对象)
+
+### 1. 编写带括号的四则运算产生式
+
+```xml
+<Expression>::=
+  <BracketsExpression><EOF>
+
+<BracketsExpression>::=
+  <AdditiveExpression>
+  |<(><BracketsExpression><+><AdditiveExpression><)>
+  |<(><BracketsExpression><-><AdditiveExpression><)>
+  |<(><BracketsExpression><*><AdditiveExpression><)>
+  |<(><BracketsExpression></><AdditiveExpression><)>
+
+<AdditiveExpression>::=
+  <MultiplicativeExpression>
+  |<AdditiveExpression><+><MultiplicativeExpression>
+  |<AdditiveExpression><-><MultiplicativeExpression>
+
+<MultiplicativeExpression>::=
+  <Number>
+  |<MultiplicativeExpression><*><Number>
+  |<MultiplicativeExpression></><Number>
+```
+
+### 2. 尽可能寻找你知道的计算机语言，尝试把它们分类
+
+- 从**用途**角度
+  - 数据描述语言
+    - XML, HTML, SGML, JSON, SQL, CSS
+  - 编程语言
+    - C, C++, C#, Java, Python, PHP, Ruby, Go, R, Perl, Groovy, VB, VB .NET, Object-C, Swift, Kotlin, JavaScript, Dart, MATLAB, Assembly Language, PL/SQL
+- 从**表达方式**角度
+  - 声明式语言
+    - XML, HTML, SGML, JSON, SQL, CSS, Lisp, Clojure, Haskell, Prolog
+  - 命令型语言
+    - C, C++, C#, Java, Python, PHP, Ruby, Go, R, Perl, Groovy, VB, VB .NET, Object-C, Swift, Kotlin, JavaScript, Dart, MATLAB, Assembly Language, PL/SQL
+
+### 5. 找出 JavaScript 标准里面所有具有特殊行为的对象
+
+TODO:
 
 ## 本周总结
 

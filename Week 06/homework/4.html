@@ -1,0 +1,83 @@
+<script>
+  // 用 JavaScript 去设计狗咬人的代码
+
+  class Person {
+    constructor() {
+      // 范围是（1-5），默认1，表示健康，5表示不健康
+      this.healthLevel = 1;
+      // 范围（0-5），默认0，表示未受伤，5表示受重伤，生命垂危
+      this.hurtLevel = 0;
+    }
+
+    // 受伤
+    hurt(damage) {
+      this.check(damage);
+    }
+
+    // 检查
+    check(part) {
+      let damageLevel = this.selfCheck(part);
+      if (damageLevel >= 4) {
+        return this.SOS();
+      }
+      // 三级损伤，或者头部受二级以上损伤，立即去医院
+      if (damageLevel >= 3 || (part === 'head' && damageLevel >= 2)) {
+        return this.hospitalCheck(part, damageLevel);
+      }
+      // ...
+    }
+
+    // 自己检查身体状况
+    selfCheck(part) {
+      let damageLevel = 1;
+      // 初步判断损伤程度
+      switch (damage) {
+        case 'head': {
+          damageLevel = 2;
+          break;
+        }
+        case 'hand': {
+          damageLevel = 1;
+          break;
+        }
+        // ...
+      }
+      return damageLevel;
+    }
+
+    // 医院检查身体状况
+    hospitalCheck(part, damageLevel) {
+      // ...
+    }
+
+    // 紧急求救
+    SOS() {
+      // ...
+    }
+  }
+
+  class Dog {
+    constructor() {
+      // 是否处于癫狂状态
+      this.isCrazy = false;
+      // 咬合力
+      this.biteForce = 1;
+    }
+
+    // 吃、咬东西
+    eat(food) {
+      // ...
+    }
+    // 觅食
+    find() {
+      // ...
+    }
+    // 发狂
+    crazy() {
+      this.isCrazy = true;
+      this.biteForce = 5;
+      let food = this.find();
+      this.eat(food);
+    }
+  }
+</script>
