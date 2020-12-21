@@ -4,6 +4,9 @@
 
 **必做：**
 
+- [不使用状态机处理字符串 - 找到字符“a”](./homework/practice/1.js)
+- [不使用状态机处理字符串 - 找到字符“ab”](./homework/practice/2.js)
+- [不使用状态机处理字符串 - 找到字符“abcdef”](./homework/practice/3.js)
 - [Toy-Browser - 玩具浏览器（1/3）](./homework/toy-browser/part1/index.js)
 
 ## 本周总结
