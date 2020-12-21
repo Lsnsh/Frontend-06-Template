@@ -3,4 +3,17 @@
   function encodeToUTF8() {
 
   }
+
+  // 获取字符串的字节长度
+  function getByteLength(str) {
+    console.log(str, str.length);
+    // 将中文替换成两个字母
+    var tempStr = str.replace(/[\u4e00-\u9fa5]/g, 'xx');
+    console.log(tempStr, tempStr.length);
+    // 返回的字符串就是字节长度
+    return tempStr.length;
+  }
+
+  console.log(getByteLength('你好Tom!'));
+
 </script>
