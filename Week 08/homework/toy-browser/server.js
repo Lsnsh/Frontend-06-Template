@@ -9,8 +9,12 @@ http.createServer((request, response) => {
   }).on('end', () => {
     body = Buffer.concat(body).toString();
     console.log('body:', body);
-    response.writeHead(200, { 'Content-Type': 'text/html' });
-    response.end('Hello World!\n');
+    response.writeHead(200, { 'Content-Type': 'text/html', 'Trailer': 'Test-Header' });
+    response.addTrailers({
+      'Test-Header': 'abc',
+    });
+    response.write('Hello');
+    response.end(' World!');
   })
 }).listen(8088)
 

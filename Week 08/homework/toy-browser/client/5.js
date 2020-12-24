@@ -142,12 +142,16 @@ class ResponseParser {
   }
   get response() {
     this.statusLine.match(/HTTP\/1\.1 ([0-9]+) ([\s\S]+)/);
-    return {
+    const responseData = {
       statusCode: RegExp.$1,
       statusText: RegExp.$2,
       headers: this.headers,
-      body: this.bodyParser.content.join('')
+      body: this.bodyParser.content.join(''),
     }
+    if (this.headers['Transfer-Encoding'] === 'chunked' && this.bodyParser.trailerContent.length) {
+      responseData.trailer = this.bodyParser.trailerContent.join('');
+    }
+    return responseData;
   }
 }
 
@@ -158,25 +162,30 @@ class TrunkedBodyParser {
     this.READING_TRUNK = 2;
     this.WAITING_NEW_LINE = 3;
     this.WAITING_NEW_LINE_END = 4;
+    this.WAITING_TRAILER_LIN = 5;
+    this.WAITING_TRAILER_LINE_END = 6;
 
     this.current = this.WAITING_LENGTH;
     this.length = 0;
     this.content = [];
+    this.trailerContent = [];
     this.isFinished = false;
   }
   receiveChar(char) {
     if (this.current === this.WAITING_LENGTH) {
       if (char === '\r') {
-        if (this.length === 0) {
-          this.isFinished = true;
-        }
         this.current = this.WAITING_LENGTH_LINE_END;
       } else {
         this.length += parseInt(char, 16);
       }
     } else if (this.current === this.WAITING_LENGTH_LINE_END) {
       if (char === '\n') {
-        this.current = this.READING_TRUNK;
+        if (this.length === 0) {
+          this.isFinished = true;
+          this.current = this.WAITING_TRAILER_LIN;
+        } else {
+          this.current = this.READING_TRUNK;
+        }
       }
     } else if (this.current === this.READING_TRUNK) {
       this.content.push(char);
@@ -192,6 +201,16 @@ class TrunkedBodyParser {
       if (char === '\n') {
         this.current = this.WAITING_LENGTH;
       }
+    } else if (this.current === this.WAITING_TRAILER_LIN) {
+      if (char === '\r') {
+        this.current = this.WAITING_TRAILER_LINE_END;
+      } else {
+        this.trailerContent.push(char);
+      }
+    } else if (this.current === this.WAITING_TRAILER_LINE_END) {
+      if (char === '\n') {
+        this.current = this.WAITING_NEW_LINE;
+      }
     }
   }
 }
@@ -204,6 +223,7 @@ void async function () {
     port: 8088,
     path: '/',
     headers: {
+      'TE': 'trailers',
       'X-Foo2': 'customed'
     },
     body: {
@@ -220,11 +240,13 @@ void async function () {
   //   statusText: 'OK',
   //   headers: {
   //     'Content-Type': 'text/html',
-  //     Date: 'Thu, 24 Dec 2020 14:24:19 GMT',
+  //     Trailer: 'Test-Header',
+  //     Date: 'Thu, 24 Dec 2020 18:07:42 GMT',
   //     Connection: 'keep-alive',
   //     'Transfer-Encoding': 'chunked'
   //   },
-  //   body: 'Hello World!\n\r\n'
+  //   body: 'Hello World!',
+  //   trailer: 'Test-Header: abc'
   // }
 
 }();

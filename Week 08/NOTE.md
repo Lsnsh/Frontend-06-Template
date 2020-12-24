@@ -167,11 +167,10 @@ Connection: keep-alive
 Transfer-Encoding: chunked
 <!-- Body -->
 
-d
-Hello World!
-
-0
-
+d\r\n
+Hello World!\r\n
+0\r\n
+\r\n
 ```
 
 上面是一个 `HTTP` 响应的示例代码，主要由三部分组成：
@@ -184,7 +183,10 @@ Hello World!
 - Body
   - Chunk Length（16 进制数）
   - Body Text
-  - 0\r\n\r\n
+  - 0
+  - Trailer（可能为空）
+
+[Transfer-Encoding](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding) 标头指定了编码时使用的安全传输的形式，在 `Node.js` 中默认是 `chunked`，表示分块传输，body 中的数据结构会受其影响
 
 ##### 第四步-ResponseParser 总结：
 
