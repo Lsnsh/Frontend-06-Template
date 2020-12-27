@@ -176,6 +176,7 @@ class TrunkedBodyParser {
       if (char === '\r') {
         this.current = this.WAITING_LENGTH_LINE_END;
       } else {
+        this.length *= 16;
         this.length += parseInt(char, 16);
       }
     } else if (this.current === this.WAITING_LENGTH_LINE_END) {

@@ -221,6 +221,8 @@ TypeError [ERR_INVALID_ARG_TYPE]: The "list[0]" argument must be an instance of 
 
 `Buffer.concat` 时，参数的类型必须时 `Buffer` 或者是 `Uint8Array`
 
+参考 `Node.js` 文档：[Static method: Buffer.concat(list[, totalLength])](https://nodejs.org/docs/latest-v12.x/api/buffer.html#buffer_static_method_buffer_concat_list_totallength)
+
 **解决：**
 
 ```js
