@@ -1,4 +1,6 @@
 const http = require('http');
+const fs = require('fs');
+const htmlContent = fs.readFileSync(__dirname + '/index.html', 'utf8');
 
 http.createServer((request, response) => {
   let body = [];
@@ -8,30 +10,12 @@ http.createServer((request, response) => {
     body.push(chunk);
   }).on('end', () => {
     body = Buffer.concat(body).toString();
-    console.log('body:', body);
+    // console.log('body:', body);
     response.writeHead(200, { 'Content-Type': 'text/html', 'Trailer': 'Test-Header' });
     response.addTrailers({
       'Test-Header': 'abc',
     });
-    response.end(`<html lang="en">
-<head>
-    <title>Document</title>
-    <style>
-        body div #title {
-            font-size: 24px;
-            font-weight: 500;
-            color: red;
-        }
-        body div p {
-            color: blue;
-        }
-    </style>
-</head>
-<body>
-    <p id="title">Helll World!</p>
-    <p>——by Lsnsh</p>
-</body>
-</html>`);
+    response.end(htmlContent);
   })
 }).listen(8088)
 
