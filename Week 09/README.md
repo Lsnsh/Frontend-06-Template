@@ -97,13 +97,13 @@ module.exports = {
 
 `HTML` 中的标签大概有三种分别是：开始标签、结束标签、自封闭标签，这一节会使用状态机来区分这三种标签。
 
-- data
-- tagOpen
-- endTagOpen
-- tagName
-- beforeAttributeName
-- selfClosingStartTag
-- EOF
+1. data
+2. tagOpen
+3. endTagOpen
+4. tagName
+5. beforeAttributeName
+6. selfClosingStartTag
+7. EOF
 
 ```js
 const EOF = Symbol("EOF");
@@ -147,7 +147,38 @@ const token: {
 
 #### 第五步-处理属性
 
+使用状态机处理属性，是词法分析的最后一个步骤，涉及到一些状态机使用技巧和 HTML 解析比较特有的地方，新增了以下几个属性相关的状态：
+
+8. attributeName
+9. afterAttributeName
+10. beforeAttributeValue
+11. doubleQuotesAttributeValue
+12. singleQuotesAttributeValue
+13. afterQuotesAttributeValue
+14. noQuotesAttributeValue
+
+总结：
+
+- 属性值分为双引号、单引号、无引号三种写法，有对应的状态处理
+- 处理属性的方法跟处理标签类似，使用全局变量暂存属性数据
+- 属性结束时，才会将全局变量暂存的属性数据，添加到 `token` 上
+
 #### 第六步-用 token 构建 DOM 树
+
+上一步之后已经完成了对 `HTML` 初步的解析，这个解析在编译原理中叫做词法分析；接下来开始进行的就是 `HTML` 的语法分析了，基于已经准备好的 `token` 来构建一颗 `DOM` 树。
+
+`HTML` 这个语言的语法分析是非常简单的，语法使用一个栈就可以处理；但是在实际的浏览器中，光用一个栈是不行的，还需要加很多的特殊处理（eg: 标签未封闭时自动封闭等处理）。
+
+用栈构建 `DOM` 树的原理：
+
+完整的 `DOM` 树结构可以看 [HTML 标准](https://html.spec.whatwg.org/multipage/)中 `Tree construction` 这一节的内容，介绍了在各种情况下该如何去配对这些标签。
+
+总结：
+
+- 从标签构建 `DOM` 树的基本技巧是使用栈
+- 遇到开始标签时创建元素并入栈，遇到结束标签时出栈
+- 自封闭节点可视为入栈后立即出栈
+- 任何元素的父元素都是它入栈前的栈顶位置的元素
 
 #### 第七步-将文本节点追加到 DOM 树
 
