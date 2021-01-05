@@ -1,5 +1,5 @@
 const net = require('net');
-const parser = require('./parser/6.js');
+const parser = require('./parser/7.js');
 
 class Request {
   constructor(option) {
@@ -236,6 +236,21 @@ void async function () {
   const response = await request.send();
 
   const dom = parser.parseHTML(response.body);
+
+  console.log(dom);
+  // {
+  //   type: 'document',
+  //   children: [
+  //     {
+  //       type: 'element',
+  //       tagName: 'html',
+  //       children: [Array],
+  //       attributes: [Array],
+  //       parent: [Circular]
+  //     },
+  //     { type: 'text', content: '\n' }
+  //   ]
+  // }
 
   // console.log(response);
   // 输出：
