@@ -187,7 +187,7 @@ const token: {
 - 文本节点与自封闭标签处理类似（不需要入栈出栈）
 - 多个文本节点需要合并
 
-### CSS Compute
+### CSS Computing
 
 ```html
 <style>
@@ -202,15 +202,164 @@ const token: {
 </style>
 ```
 
-解析 `style` 标签中的选择器和样式，经过解析和计算后，将其追加到 `DOM`树上对应的 `Element` 上。
+`CSS Computing` - `CSS` 计算，就是把 `CSS` 规则中所包含的 `CSS` 属性应用到匹配这些选择器的元素上去，最后生成一颗带 `CSS` 属性的 `DOM` 树。
+
+备注：如果将所有 `CSS` 属性都写在 `style` 属性中，想完成渲染的话，可以不需要经历这一步（CSS Parser），经历这一步是为了更好的了解背后的原理。
 
 #### 第一步-收集 CSS 规则
 
+到目前为止我们生成的 `DOM` 树中，只包含 `HTML` 语言里描述的哪些语义信息，我们要想完成渲染，我们还需要得到 `CSS` 的信息。
+
+要想完成 CSS 计算，需要对 CSS 进行语法和词法分析，这里我们直接使用 `npm` 上名为 `css` 的包，其实是一个 `CSS Parser`，能够帮我将 `CSS` 的代码解析成 `AST 抽象语法树`，便于我们从中提取出各种 `CSS` 规则，然后应用到我们的 HTML 元素上。
+
+环境准备：
+
+```
+npm i css
+```
+
+`CSS Parse` 后得到的 `AST 抽象语法树`：
+
+```json
+{
+  "type": "stylesheet",
+  "stylesheet": {
+    "rules": [
+      {
+        "type": "rule",
+        "selectors": ["body div #title"],
+        "declarations": [
+          {
+            "type": "declaration",
+            "property": "font-size",
+            "value": "24px",
+            "position": {
+              "start": {
+                "line": 3,
+                "column": 9
+              },
+              "end": {
+                "line": 3,
+                "column": 24
+              }
+            }
+          },
+          {
+            "type": "declaration",
+            "property": "font-weight",
+            "value": "500",
+            "position": {
+              "start": {
+                "line": 4,
+                "column": 9
+              },
+              "end": {
+                "line": 4,
+                "column": 25
+              }
+            }
+          },
+          {
+            "type": "declaration",
+            "property": "color",
+            "value": "red",
+            "position": {
+              "start": {
+                "line": 5,
+                "column": 9
+              },
+              "end": {
+                "line": 5,
+                "column": 19
+              }
+            }
+          }
+        ],
+        "position": {
+          "start": {
+            "line": 2,
+            "column": 7
+          },
+          "end": {
+            "line": 6,
+            "column": 8
+          }
+        }
+      },
+      {
+        "type": "rule",
+        "selectors": ["body div p"],
+        "declarations": [
+          {
+            "type": "declaration",
+            "property": "color",
+            "value": "green",
+            "position": {
+              "start": {
+                "line": 8,
+                "column": 9
+              },
+              "end": {
+                "line": 8,
+                "column": 21
+              }
+            }
+          }
+        ],
+        "position": {
+          "start": {
+            "line": 7,
+            "column": 7
+          },
+          "end": {
+            "line": 9,
+            "column": 8
+          }
+        }
+      }
+    ],
+    "parsingErrors": []
+  }
+}
+```
+
+总结：
+
+- 遇到 `style` 标签时，我们把 `CSS` 规则保存起来
+- 这里我们选择使用现成 `CSS Parser` 来分析 `CSS` 规则
+- 需要看懂 `CSS Parser` 解析后的 `AST 抽象语法树` 中各字段代表的含义
+
 #### 第二步-添加调用
+
+总结：
+
+- 当我们创建一个元素后，立即计算 `CSS`
+- 理论上（假设），当我们分析一个元素时，所有 `CSS` 规则已经收集完毕
+- 在真实浏览器中，可能遇到写在 `body` 中的 `style` 标签，需要重新 `CSS` 计算的情况，这里我们忽略
 
 #### 第三步-获取父元素序列
 
+```css
+/* 从 #title 开始匹配，能最快的找到满足条件的元素 */
+body div #title
+```
+
+- 在 `computeCSS` 函数中，我们必须要知道元素的所有父元素才能判断元素与规则是否匹配
+- 我们从上一步骤的 `stack`，可以获取当前元素所有的父元素
+- 因为我们首先获取的是“当前元素”，所以我们获取和计算父元素匹配的顺序是从从内向外
+
 #### 第四步-选择器与元素的匹配
+
+```js
+// 'body div #title' => ['#title', 'div', 'body']
+const selectorParts = rule.selectors[0].split(" ").reverse();
+// ...
+```
+
+总结：
+
+- 选择器也要从当前元素向外排列
+- 复杂选择器拆成针对单个元素的选择器，用循环来匹配父元素队列
 
 #### 第五步-计算选择器与元素匹配
 
