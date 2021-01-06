@@ -161,7 +161,7 @@ function selfClosingStartTag(c) {
   }
 }
 
-// 标签属性名-开始，暂时先不处理
+// 标签属性名-开始
 function beforeAttributeName(c) {
   if (c.match(/^[\r\t\f ]$/)) {
     return beforeAttributeName;

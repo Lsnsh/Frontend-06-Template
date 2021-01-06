@@ -1,5 +1,5 @@
 const net = require('net');
-const parser = require('./parser/11.js');
+const parser = require('./parser/14.js');
 
 class Request {
   constructor(option) {
@@ -237,7 +237,10 @@ void async function () {
 
   const dom = parser.parseHTML(response.body);
 
-  console.log(dom);
+  // 想要打印 DOM 树的 JSON 字符串，需要将 parser.js 中的 element.parent = top; 注释掉
+  // console.log(JSON.stringify(dom, null, 2));
+
+  // console.log(dom);
   // {
   //   type: 'document',
   //   children: [

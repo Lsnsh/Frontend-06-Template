@@ -363,6 +363,279 @@ const selectorParts = rule.selectors[0].split(" ").reverse();
 
 #### 第五步-计算选择器与元素匹配
 
+总结：
+
+- 根据选择器的类型和元素属性，计算是否与当前元素匹配
+- 这里仅仅是实现了三种基本选择器，实际浏览器中要处理复合选择器等更多情况
+- 作业（可选）：实现复合选择器，实现支持空格的 `class` 选择器
+
 #### 第六步-生成 computed 属性
 
+总结：
+
+- 一旦选择器匹配，就会将应用选择器到元素上，形成 `computedStyle`
+
 #### 第七步-specificity 的计算逻辑
+
+上一节中我们已经生成了 `computedStyle`，但是样式（选择器）的优先级还没有处理，即后面的样式不一定可以覆盖前面的样式，要根据选择器 `specificity - 专指的程度/特异性` 来决定，我们知道 `id` 选择器的优先级高于 `class` 和 `元素名称` 选择器，但是具体高多少呢？
+
+以前一直都接收了网络上对于 CSS 选择器"权重"的解释，即认为：
+
+- 内联样式，“权重”是 1000
+- id 选择器。"权重"是 100
+- class 选择器，"权重"是 10
+- 元素名称选择器，"权重"是 1
+
+```css
+body div #title {
+  color: red;
+}
+```
+
+以上面代码为例，，选择器出现级联时，将其各选择器的"权重"相加，得到最终的"权重"为 `1 + 1 + 100 = 102`。那么对于应用在同一个元素上，"权重"大一定能覆盖"权重"小的么？
+
+```html
+<html lang="en">
+  <head>
+    <style>
+      body div #title {
+        color: red;
+      }
+      body div p.c1.c2.c3.c4.c5.c6.c7.c8.c9.c10.c11 {
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <p id="title" class="c1 c2 c3 c4 c5 c6 c7 c8 c9 c10 c11">Helll World!</p>
+    </div>
+  </body>
+</html>
+```
+
+以以上代码为例，实际运行 p 标签的文字颜色是 `red` 而不是 `green`，这是因为我们对于 `specificity` 的计算理解上出了一点偏差，`specificity` 是一个四元组 `a, b , c, d`：
+
+- a = 元素有内联 `style` 属性样式时为 `1`，没有则为 `0`
+- b = `ID` 选择器的数量
+- c = 属性、类、伪类选择器的数量
+- d = 元素名称和伪元素选择器的数量
+
+计算 `specificity` ：
+
+```css
+body div #title  /* a=0 b=1 c=0 d=2 -> specificity = 0,1,0,2 */
+body div p.c1.c2.c3.c4.c5.c6.c7.c8.c9.c10.c11 /* a=0 b=0 c=11 d=3 -> specificity = 0,0,11,3 */
+```
+
+比较 `specificity`：
+
+- 0,1,0,2
+- 0,0,11,3
+
+从 `a` 开始比较大小，一旦得出大小就停止比较，不再继续往下比较，最终得到是 `0,1,0,2` > `0,0,11,3`，这也解释了为什么 p 标签的文字颜色是 `red` 而不是 `green`了 —— 实际“计算”时“权重”不会进位，因为“个十百千位”上表示的是选择器的数量，彼此之间是不存在进位关系的。
+
+总结：
+
+- CSS 规则根据 specificity 和后来者优先级更高，两种因素相结合决定是否覆盖
+- [w3c - 计算选择器的特异性 - Calculating a selector's specificity](https://www.w3.org/TR/CSS22/cascade.html#specificity)
+
+最后打印得到的 `DOM` 树结构是这样的：
+
+```json
+{
+  "type": "document",
+  "children": [
+    {
+      "type": "element",
+      "tagName": "html",
+      "children": [
+        {
+          "type": "text",
+          "content": "\n  "
+        },
+        {
+          "type": "element",
+          "tagName": "head",
+          "children": [
+            {
+              "type": "text",
+              "content": "\n    "
+            },
+            {
+              "type": "element",
+              "tagName": "title",
+              "children": [
+                {
+                  "type": "text",
+                  "content": "Toy-Browser"
+                }
+              ],
+              "attributes": [],
+              "parent": null,
+              "computedStyle": {}
+            },
+            {
+              "type": "text",
+              "content": "\n    "
+            },
+            {
+              "type": "element",
+              "tagName": "style",
+              "children": [
+                {
+                  "type": "text",
+                  "content": "\n      body div #title {\n        font-size: 24px;\n        font-weight: 500;\n        color: red;\n      }\n      body div p {\n        color: green;\n      }\n    "
+                }
+              ],
+              "attributes": [],
+              "parent": null,
+              "computedStyle": {}
+            },
+            {
+              "type": "text",
+              "content": "\n  "
+            }
+          ],
+          "attributes": [],
+          "parent": null,
+          "computedStyle": {}
+        },
+        {
+          "type": "text",
+          "content": "\n  "
+        },
+        {
+          "type": "element",
+          "tagName": "body",
+          "children": [
+            {
+              "type": "text",
+              "content": "\n    "
+            },
+            {
+              "type": "element",
+              "tagName": "div",
+              "children": [
+                {
+                  "type": "text",
+                  "content": "\n      "
+                },
+                {
+                  "type": "element",
+                  "tagName": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "content": "Helll World!"
+                    }
+                  ],
+                  "attributes": [
+                    {
+                      "name": "id",
+                      "value": "title"
+                    }
+                  ],
+                  "parent": null,
+                  "computedStyle": {
+                    "font-size": {
+                      "value": "24px",
+                      "specificity": [0, 1, 0, 2]
+                    },
+                    "font-weight": {
+                      "value": "500",
+                      "specificity": [0, 1, 0, 2]
+                    },
+                    "color": {
+                      "value": "red",
+                      "specificity": [0, 1, 0, 2]
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "content": "\n      "
+                },
+                {
+                  "type": "element",
+                  "tagName": "p",
+                  "children": [
+                    {
+                      "type": "text",
+                      "content": "--by Lsnsh"
+                    }
+                  ],
+                  "attributes": [],
+                  "parent": null,
+                  "computedStyle": {
+                    "color": {
+                      "value": "green",
+                      "specificity": [0, 0, 0, 3]
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "content": "\n      "
+                },
+                {
+                  "type": "element",
+                  "tagName": "img",
+                  "children": [],
+                  "attributes": [
+                    {
+                      "name": "alt",
+                      "value": "img"
+                    },
+                    {
+                      "name": "isSelfClosing",
+                      "value": true
+                    }
+                  ],
+                  "parent": null,
+                  "computedStyle": {}
+                },
+                {
+                  "type": "text",
+                  "content": "\n    "
+                }
+              ],
+              "attributes": [
+                {
+                  "name": "id",
+                  "value": "app"
+                }
+              ],
+              "parent": null,
+              "computedStyle": {}
+            },
+            {
+              "type": "text",
+              "content": "\n  "
+            }
+          ],
+          "attributes": [],
+          "parent": null,
+          "computedStyle": {}
+        },
+        {
+          "type": "text",
+          "content": "\n"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "lang",
+          "value": "en"
+        }
+      ],
+      "parent": null,
+      "computedStyle": {}
+    },
+    {
+      "type": "text",
+      "content": "\n"
+    }
+  ]
+}
+```
