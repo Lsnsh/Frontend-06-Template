@@ -47,7 +47,11 @@ module.exports = class extends Generator {
 
     // Extend or create package.json file in destination path
     this.fs.extendJSON(this.destinationPath('package.json'), pkgJson);
+    // yeoman v5.0 之后不再支持 npmInstall，而是建议使用 addDependencies/addDevDependencies 来修改 package.json 文件
+    // 查看详情：https://github.com/yeoman/generator/issues/1283
     // this.npmInstall(['lodash'], { 'save-dev': true });
+    // this.addDependencies({'lodash': 'latest'})
+    // this.addDevDependencies(['webpack'])
 
   }
 };
